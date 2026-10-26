@@ -19,7 +19,6 @@ export const MUSIC_CROSSFADE_SECONDS = 3;
 // طريقة ملء الصور (غير الملصقات): 'cover' يملأ الشاشة ويقصّ الأطراف، 'contain' يعرض الصورة كاملة فوق خلفية ضبابية
 export const IMAGE_FIT: 'cover' | 'contain' = 'cover';
 
-
 export const COLORS = {
   charcoal: '#0d0d0f',
   sepia: '#b59a76',
@@ -27,13 +26,16 @@ export const COLORS = {
   offWhite: '#f1e9da',
 };
 
+// وضع الريندر السريع: يُفعَّل بالمتغير REMOTION_FAST=1 (من الـ workflow) ويعطّل التأثيرات الثقيلة فقط
+const FAST = process.env.REMOTION_FAST === '1';
+
 // مفاتيح تشغيل/إيقاف الطبقات (مفيدة للمعاينة السريعة في Studio أو لتخفيف زمن الريندر)
 export const FEATURES = {
   narrator: true,
   cues: true,
   timeline: true,
   chapterIndicator: true,
-  dust: true,
-  filmScratches: true,
-  projectorFlicker: true,
+  dust: !FAST,
+  filmScratches: !FAST,
+  projectorFlicker: !FAST,
 };

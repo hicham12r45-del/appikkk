@@ -8,9 +8,9 @@ on:
         required: false
         default: 'MyComposition'
       quality:
-        description: 'draft = 30s test · final = full render'
+        description: 'draft = 30s test · fast = full 720p (quicker) · final = full 1080p'
         required: false
-        default: 'final'
+        default: 'fast'
 
 jobs:
   render:
@@ -41,8 +41,14 @@ jobs:
         if: ${{ github.event.inputs.quality == 'draft' }}
         run: npm run render:test
 
-      - name: Render (full)
-        if: ${{ github.event.inputs.quality != 'draft' }}
+      - name: Render (fast, 720p)
+        if: ${{ github.event.inputs.quality == 'fast' }}
+        env:
+          REMOTION_FAST: '1'
+        run: npm run render:fast
+
+      - name: Render (final, 1080p)
+        if: ${{ github.event.inputs.quality == 'final' }}
         run: npm run render
 
       - name: Upload video
