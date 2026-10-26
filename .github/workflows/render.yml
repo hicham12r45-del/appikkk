@@ -8,7 +8,7 @@ on:
         required: false
         default: 'MyComposition'
       quality:
-        description: 'Any value renders the full video. Set to "test" for 30s preview.'
+        description: 'draft = 30s test · final = full render'
         required: false
         default: 'final'
 
@@ -38,11 +38,11 @@ jobs:
         run: npm run typecheck
 
       - name: Render (test, first 30s)
-        if: ${{ github.event.inputs.quality == 'test' }}
+        if: ${{ github.event.inputs.quality == 'draft' }}
         run: npm run render:test
 
       - name: Render (full)
-        if: ${{ github.event.inputs.quality != 'test' }}
+        if: ${{ github.event.inputs.quality != 'draft' }}
         run: npm run render
 
       - name: Upload video
