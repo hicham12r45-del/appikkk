@@ -3,15 +3,14 @@ name: Render documentary
 on:
   workflow_dispatch:
     inputs:
+      composition:
+        description: 'Composition ID (ignored by this workflow)'
+        required: false
+        default: 'MyComposition'
       quality:
-        description: 'اختر الجودة'
-        type: choice
-        required: true
+        description: 'final = full 1080p | test = 30s only | anything else = full 720p (fast)'
+        required: false
         default: 'fast'
-        options:
-          - fast
-          - final
-          - draft
 
 jobs:
   render:
@@ -22,8 +21,8 @@ jobs:
 
       - name: Show chosen quality
         run: |
-          echo "Quality = ${{ inputs.quality }}"
-          echo "fast = full 720p | final = full 1080p | draft = 30 seconds only"
+          echo "composition = ${{ github.event.inputs.composition }}"
+          echo "quality = ${{ github.event.inputs.quality }}"
 
       - uses: actions/setup-node@v4
         with:
@@ -43,19 +42,19 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Render (draft, first 30s only)
-        if: ${{ inputs.quality == 'draft' }}
+      - name: Render (test, first 30s only)
+        if: ${{ github.event.inputs.quality == 'test' }}
         run: npm run render:test
 
+      - name: Render (final, full 1080p)
+        if: ${{ github.event.inputs.quality == 'final' }}
+        run: npm run render
+
       - name: Render (fast, full 720p)
-        if: ${{ inputs.quality == 'fast' }}
+        if: ${{ github.event.inputs.quality != 'test' && github.event.inputs.quality != 'final' }}
         env:
           REMOTION_FAST: '1'
         run: npm run render:fast
-
-      - name: Render (final, full 1080p)
-        if: ${{ inputs.quality == 'final' }}
-        run: npm run render
 
       - name: Print video duration
         run: |
@@ -67,6 +66,6 @@ jobs:
       - name: Upload video
         uses: actions/upload-artifact@v4
         with:
-          name: documentary-${{ github.run_number }}-${{ inputs.quality }}
+          name: documentary-${{ github.run_number }}
           path: out/*.mp4
           retention-days: 7
