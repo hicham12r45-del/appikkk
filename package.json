@@ -7,8 +7,8 @@
     "start": "remotion studio",
     "check:assets": "node scripts/check-assets.mjs",
     "typecheck": "tsc --noEmit",
-    "render": "remotion render RussianRevolution out/documentary.mp4 --codec=h264 --crf=18 --concurrency=100%",
-    "render:fast": "remotion render RussianRevolution720 out/documentary_720p.mp4 --codec=h264 --crf=24 --concurrency=100%",
+    "render": "REMOTION_FAST=1 remotion render RussianRevolution720 out/documentary.mp4 --codec=h264 --video-bitrate=450K --audio-bitrate=96K --x264-preset=slow --concurrency=100%",
+    "render:fast": "REMOTION_FAST=1 remotion render RussianRevolution720 out/documentary_720p.mp4 --codec=h264 --video-bitrate=450K --audio-bitrate=96K --x264-preset=slow --concurrency=100%",
     "render:test": "remotion render RussianRevolution out/test.mp4 --codec=h264 --crf=23 --frames=0-899 --concurrency=100%"
   },
   "dependencies": {
