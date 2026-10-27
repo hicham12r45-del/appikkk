@@ -3,14 +3,15 @@ name: Render documentary
 on:
   workflow_dispatch:
     inputs:
-      composition:
-        description: 'Composition ID (ignored by this workflow)'
-        required: false
-        default: 'MyComposition'
       quality:
-        description: 'draft = 30s test · fast = full 720p (quicker) · final = full 1080p'
-        required: false
+        description: 'اختر الجودة'
+        type: choice
+        required: true
         default: 'fast'
+        options:
+          - fast
+          - final
+          - draft
 
 jobs:
   render:
@@ -18,6 +19,11 @@ jobs:
     timeout-minutes: 350
     steps:
       - uses: actions/checkout@v4
+
+      - name: Show chosen quality
+        run: |
+          echo "Quality = ${{ inputs.quality }}"
+          echo "fast = full 720p | final = full 1080p | draft = 30 seconds only"
 
       - uses: actions/setup-node@v4
         with:
@@ -37,23 +43,30 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Render (test, first 30s)
-        if: ${{ github.event.inputs.quality == 'draft' }}
+      - name: Render (draft, first 30s only)
+        if: ${{ inputs.quality == 'draft' }}
         run: npm run render:test
 
-      - name: Render (fast, 720p)
-        if: ${{ github.event.inputs.quality == 'fast' }}
+      - name: Render (fast, full 720p)
+        if: ${{ inputs.quality == 'fast' }}
         env:
           REMOTION_FAST: '1'
         run: npm run render:fast
 
-      - name: Render (final, 1080p)
-        if: ${{ github.event.inputs.quality == 'final' }}
+      - name: Render (final, full 1080p)
+        if: ${{ inputs.quality == 'final' }}
         run: npm run render
+
+      - name: Print video duration
+        run: |
+          for f in out/*.mp4; do
+            echo "$f"
+            ffprobe -v error -show_entries format=duration -of default=nw=1 "$f"
+          done
 
       - name: Upload video
         uses: actions/upload-artifact@v4
         with:
-          name: documentary
+          name: documentary-${{ github.run_number }}-${{ inputs.quality }}
           path: out/*.mp4
           retention-days: 7
